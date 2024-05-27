@@ -7,6 +7,10 @@ def generate_launch_description():
     return LaunchDescription([
         # Declare arguments
         DeclareLaunchArgument(
+            'use_sim_time', default_value='True',
+            description='Use sim time if true'
+        ),
+        DeclareLaunchArgument(
             'target_frame', default_value='base_link',
             description='Target frame for point cloud to laser scan conversion'
         ),
@@ -28,7 +32,10 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='static_transform_publisher',
-            arguments=['0', '0', '0', '0', '0', '0', '1', 'map', 'cloud']
+            arguments=['0', '0', '0', '0', '0', '0', '1', 'map', 'cloud'],
+            parameters=[{
+                'use_sim_time': LaunchConfiguration('use_sim_time')
+            }]
         ),
 
         # PointCloud to LaserScan Node
@@ -41,6 +48,7 @@ def generate_launch_description():
                 ('scan', [LaunchConfiguration('scan_topic')])
             ],
             parameters=[{
+                'use_sim_time': LaunchConfiguration('use_sim_time'),
                 'target_frame': LaunchConfiguration('target_frame'),
                 'transform_tolerance': 0.01,
                 'min_height': -0.425,  # lidar_link height is 0.427
